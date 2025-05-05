@@ -7,7 +7,8 @@ use Inertia\Inertia;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\LinkController;
-use App\Http\Controllers\CategoryController; // ← Tambahkan ini
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ShortenLinkController;
 
 // Halaman Awal
 Route::get('/', function () {
@@ -23,6 +24,8 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
+
+Route::get('/s/{code}', [ShortenLinkController::class, 'redirect'])->name('shorten.redirect');
 
 // Route yang memerlukan autentikasi
 Route::middleware(['auth'])->group(function () {
@@ -55,6 +58,16 @@ Route::middleware(['auth'])->group(function () {
 
         // Route kategori berdasarkan project (GET)
         Route::get('/{project}/categories', [CategoryController::class, 'index'])->name('categories.index');
+    });
+
+    // Shorten Link (CRUD)
+    Route::prefix('dashboard/shorten')->name('shorten.')->group(function () {
+        Route::get('/', [ShortenLinkController::class, 'index'])->name('index');
+        Route::get('/create', [ShortenLinkController::class, 'create'])->name('create');
+        Route::get('/{id}/edit', [ShortenLinkController::class, 'edit'])->name('shorten.edit');
+        Route::patch('/{id}', [ShortenLinkController::class, 'update'])->name('shorten.update');
+        Route::post('/', [ShortenLinkController::class, 'store'])->name('store');
+        Route::delete('/{id}', [ShortenLinkController::class, 'destroy'])->name('destroy');
     });
 
     // Simpan kategori baru (POST)

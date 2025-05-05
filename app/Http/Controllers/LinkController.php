@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
+use App\Models\Link;
 use Inertia\Inertia;
 use Inertia\Response;
-use App\Models\Link;
 use App\Models\Project;
+use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 
 class LinkController extends Controller
@@ -32,8 +33,13 @@ class LinkController extends Controller
     {
         abort_if($project->user_id !== Auth::id(), 403);
 
+        $categories = Category::where('user_id', Auth::id())
+            ->where('project_id', $project->id)
+            ->get();
+
         return Inertia::render('Projects/Links/Create', [
             'project' => $project,
+            'categories' => $categories,
         ]);
     }
 

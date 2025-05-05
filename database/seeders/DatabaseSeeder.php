@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             ProjectSeeder::class,
             CategorySeeder::class,
             LinkSeeder::class,
+            ShortenedLinkSeeder::class,
         ]);
     }
 }

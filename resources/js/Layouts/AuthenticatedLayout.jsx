@@ -37,6 +37,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Projects
                                 </NavLink>
+                                <NavLink
+                                    href={route("shorten.index")}
+                                    active={route().current("shorten.index")}
+                                >
+                                    Shorten
+                                </NavLink>
                             </div>
                         </div>
 
@@ -147,6 +153,13 @@ export default function AuthenticatedLayout({ header, children }) {
                             active={route().current("projects.index")}
                         >
                             Projects
+                        </ResponsiveNavLink>
+
+                        <ResponsiveNavLink
+                            href={route("shorten.index")}
+                            active={route().current("shorten.index")}
+                        >
+                            Shorten
                         </ResponsiveNavLink>
                     </div>
 

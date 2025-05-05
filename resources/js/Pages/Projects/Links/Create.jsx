@@ -1,12 +1,23 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
+import axios from 'axios';
 
 export default function Create({ auth, project }) {
+    const [selectedCategory, setSelectedCategory] = useState('');
+    const [categories, setCategories] = useState([]); 
+
     const { data, setData, post, processing, errors } = useForm({
-        category_title: '',
+        category_id: '',
         links: [{ title: '', url: '' }],
     });
+
+    useEffect(() => {
+        axios
+            .get(`/dashboard/categories/${project.id}`)
+            .then((response) => setCategories(response.data))
+            .catch((error) => console.error('Gagal memuat kategori:', error));
+    }, [project.id]);
 
     const handleLinkChange = (index, field, value) => {
         const updatedLinks = [...data.links];
@@ -54,20 +65,29 @@ export default function Create({ auth, project }) {
 
                         <div className="p-6 border-t border-gray-200 dark:border-gray-700">
                             <form onSubmit={submit} className="space-y-6">
-                                {/* Input kategori */}
+                                {/* Dropdown Kategori */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Nama Kategori
+                                        Pilih Kategori
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={data.category_title}
-                                        onChange={(e) => setData('category_title', e.target.value)}
-                                        className="mt-1 block w-full px-4 py-2 border rounded-md shadow-sm dark:bg-gray-700 dark:text-white dark:border-gray-600"
-                                        placeholder="Contoh: Sosial Media"
-                                    />
-                                    {errors.category_title && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.category_title}</p>
+                                    <select
+                                        value={selectedCategory}
+                                        onChange={(e) => {
+                                            setSelectedCategory(e.target.value);
+                                            setData('category_id', e.target.value);
+                                        }}
+                                        className="mt-1 block w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600"
+                                    >
+                                        <option value="">Pilih Kategori</option>
+                                        {categories.map((cat) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
+
+                                    {errors.category_id && (
+                                        <p className="mt-1 text-sm text-red-500">{errors.category_id}</p>
                                     )}
                                 </div>
 
@@ -83,7 +103,9 @@ export default function Create({ auth, project }) {
                                                     type="text"
                                                     placeholder="Judul Link"
                                                     value={link.title}
-                                                    onChange={(e) => handleLinkChange(index, 'title', e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleLinkChange(index, 'title', e.target.value)
+                                                    }
                                                     className="w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600"
                                                 />
                                             </div>
@@ -92,7 +114,9 @@ export default function Create({ auth, project }) {
                                                     type="url"
                                                     placeholder="URL Link"
                                                     value={link.url}
-                                                    onChange={(e) => handleLinkChange(index, 'url', e.target.value)}
+                                                    onChange={(e) =>
+                                                        handleLinkChange(index, 'url', e.target.value)
+                                                    }
                                                     className="w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600"
                                                 />
                                             </div>

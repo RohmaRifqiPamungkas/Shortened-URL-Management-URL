@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('custom_alias')->nullable()->unique();
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

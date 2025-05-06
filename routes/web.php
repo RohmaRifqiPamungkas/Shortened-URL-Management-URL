@@ -71,7 +71,7 @@ Route::middleware(['auth'])->group(function () {
     });
 
     // Simpan kategori baru (POST)
-    Route::post('/dashboard/categories', [CategoryController::class, 'store'])->name('categories.store');
+    Route::post('/dashboard/projects/{project}/categories', [CategoryController::class, 'store'])->name('categories.store');
 
     // Hapus link (terpisah karena tidak perlu ID project)
     Route::delete('/dashboard/projects/links/{link}', [LinkController::class, 'destroy'])->name('projects.links.destroy');

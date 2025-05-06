@@ -48,7 +48,8 @@ class LinkController extends Controller
         abort_if((int) $project->user_id !== (int) Auth::id(), 403);
 
         $validated = $request->validate([
-            'category_title' => 'required|string|max:255',
+            'category_id' => 'nullable|exists:categories,id',
+            'category_title' => 'nullable|string|max:255',
             'links' => 'required|array|min:1',
             'links.*.title' => 'required|string|max:255',
             'links.*.url' => 'required|url',
@@ -56,17 +57,30 @@ class LinkController extends Controller
 
         $userId = Auth::id();
 
-        // Simpan kategori baru
-        $category = $project->categories()->create([
-            'user_id' => $userId,
-            'name' => $validated['category_title'],
-        ]);
+        // Validasi tambahan: pastikan salah satu diisi
+        if (empty($validated['category_id']) && empty($validated['category_title'])) {
+            return back()->withErrors([
+                'category_title' => 'Pilih kategori dari dropdown atau masukkan kategori baru.',
+            ])->withInput();
+        }
 
-        // Simpan semua link dalam kategori tersebut
+        // Tentukan kategori ID
+        $categoryId = $validated['category_id'] ?? null;
+
+        // Jika tidak pilih dari dropdown, buat kategori baru
+        if (!$categoryId && !empty($validated['category_title'])) {
+            $category = $project->categories()->create([
+                'user_id' => $userId,
+                'name' => $validated['category_title'],
+            ]);
+            $categoryId = $category->id;
+        }
+
+        // Simpan semua link dengan kategori
         foreach ($validated['links'] as $link) {
             $project->links()->create([
                 'user_id' => $userId,
-                'category_id' => $category->id,
+                'category_id' => $categoryId,
                 'title' => $link['title'],
                 'original_url' => $link['url'],
             ]);

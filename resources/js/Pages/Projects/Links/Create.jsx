@@ -1,24 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import axios from 'axios';
 
 export default function Create({ auth, project }) {
-    const [selectedCategory, setSelectedCategory] = useState('');
-    const [categories, setCategories] = useState([]);
-    const [newCategory, setNewCategory] = useState(''); // State untuk kategori baru
-
     const { data, setData, post, processing, errors } = useForm({
-        category_id: '',
+        category_id: '', // Tidak lagi dari query string
         links: [{ title: '', url: '' }],
     });
-
-    useEffect(() => {
-        axios
-            .get(`/dashboard/projects/${project.id}/categories`)
-            .then((response) => setCategories(response.data))
-            .catch((error) => console.error('Gagal memuat kategori:', error));
-    }, [project.id]);
 
     const handleLinkChange = (index, field, value) => {
         const updatedLinks = [...data.links];
@@ -40,19 +28,6 @@ export default function Create({ auth, project }) {
         post(`/dashboard/projects/${project.id}/links`);
     };
 
-    // Submit kategori baru
-    const submitCategory = (e) => {
-        e.preventDefault();
-        // Ubah URL endpoint untuk menyimpan kategori baru
-        axios
-            .post(`/dashboard/projects/${project.id}/categories`, { name: newCategory }) // Perbaiki endpoint
-            .then((response) => {
-                setCategories([...categories, response.data.category]); // Menambahkan kategori baru ke dropdown
-                setNewCategory(''); // Reset input kategori baru
-            })
-            .catch((error) => console.error('Gagal menambahkan kategori:', error));
-    };
-
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -70,7 +45,7 @@ export default function Create({ auth, project }) {
                         <div className="p-6 flex justify-between items-center text-gray-900 dark:text-gray-100">
                             <span>Tambah Link Baru</span>
                             <Link
-                                href="/dashboard/projects"
+                                href={`/dashboard/projects/${project.id}`}
                                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
                             >
                                 Kembali
@@ -79,58 +54,6 @@ export default function Create({ auth, project }) {
 
                         <div className="p-6 border-t border-gray-200 dark:border-gray-700">
                             <form onSubmit={submit} className="space-y-6">
-                                {/* Form Input Kategori Baru */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Tambah Kategori Baru
-                                    </label>
-                                    <div className="flex">
-                                        <input
-                                            type="text"
-                                            value={newCategory}
-                                            onChange={(e) => setNewCategory(e.target.value)}
-                                            className="mt-1 block w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                                            placeholder="Nama Kategori"
-                                        />
-                                        <button
-                                            type="button"
-                                            onClick={submitCategory}
-                                            className="ml-2 bg-blue-600 text-white px-4 py-2 rounded-md"
-                                        >
-                                            Tambah
-                                        </button>
-                                    </div>
-                                    {errors.newCategory && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.newCategory}</p>
-                                    )}
-                                </div>
-
-                                {/* Dropdown Kategori */}
-                                <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                                        Pilih Kategori
-                                    </label>
-                                    <select
-                                        value={selectedCategory}
-                                        onChange={(e) => {
-                                            setSelectedCategory(e.target.value);
-                                            setData('category_id', e.target.value);
-                                        }}
-                                        className="mt-1 block w-full px-4 py-2 border rounded-md dark:bg-gray-800 dark:text-white dark:border-gray-600"
-                                    >
-                                        <option value="">Pilih Kategori</option>
-                                        {categories.map((cat) => (
-                                            <option key={cat.id} value={cat.id}>
-                                                {cat.name}
-                                            </option>
-                                        ))}
-                                    </select>
-
-                                    {errors.category_id && (
-                                        <p className="mt-1 text-sm text-red-500">{errors.category_id}</p>
-                                    )}
-                                </div>
-
                                 {/* Repeater Link */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

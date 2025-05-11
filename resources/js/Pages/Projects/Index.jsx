@@ -56,6 +56,9 @@ export default function ProjectsDashboard({ auth }) {
                                         projects.map((project, index) => (
                                             <tr
                                                 key={project.id}
+                                                onClick={() =>
+                                                    (window.location.href = `/dashboard/projects/${project.id}/links`)
+                                                }
                                                 className="hover:bg-gray-100 dark:hover:bg-gray-700"
                                             >
                                                 <td className="px-4 py-2">
@@ -75,13 +78,6 @@ export default function ProjectsDashboard({ auth }) {
                                                     </a>
                                                 </td>
                                                 <td className="px-4 py-2 flex gap-2">
-                                                    <Link
-                                                        href={`/dashboard/projects/${project.id}/links/create`}
-                                                        className="text-green-500 hover:underline"
-                                                    >
-                                                        Add
-                                                    </Link>
-
                                                     <Link
                                                         href={`/dashboard/projects/${project.id}/edit`}
                                                         className="text-yellow-500 hover:underline"

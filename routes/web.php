@@ -57,7 +57,7 @@ Route::middleware(['auth'])->group(function () {
         });
 
         // Route kategori berdasarkan project (GET)
-        Route::get('/{project}/categories', [CategoryController::class, 'index'])->name('categories.index');
+        Route::get('/{project}/categories/create', [CategoryController::class, 'create'])->name('categories.create');
     });
 
     // Shorten Link (CRUD)

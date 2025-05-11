@@ -13,43 +13,42 @@ use Illuminate\Http\RedirectResponse;
 
 class LinkController extends Controller
 {
-    public function index($project_id): Response
+    public function index($project_id)
     {
-        $project = Project::where('id', $project_id)
-            ->where('user_id', Auth::id())
-            ->firstOrFail();
+        $project = Project::findOrFail($project_id);
 
         $links = Link::with('category')
             ->where('project_id', $project_id)
             ->get();
 
+        $categories = Category::where('project_id', $project_id)->get(); 
+
         return Inertia::render('Projects/Links/Index', [
+            'auth' => [
+                'user' => Auth::user()
+            ],
             'project' => $project,
             'links' => $links,
+            'categories' => $categories, 
         ]);
     }
 
-    public function create(Project $project): Response
+
+    public function create(Request $request, Project $project): Response
     {
         abort_if($project->user_id !== Auth::id(), 403);
 
-        $categories = Category::where('user_id', Auth::id())
-            ->where('project_id', $project->id)
-            ->get();
-
         return Inertia::render('Projects/Links/Create', [
             'project' => $project,
-            'categories' => $categories,
         ]);
     }
 
     public function store(Request $request, Project $project): RedirectResponse
     {
-        abort_if((int) $project->user_id !== (int) Auth::id(), 403);
+        abort_if($project->user_id !== Auth::id(), 403);
 
+        // Validasi form untuk link yang akan ditambahkan
         $validated = $request->validate([
-            'category_id' => 'nullable|exists:categories,id',
-            'category_title' => 'nullable|string|max:255',
             'links' => 'required|array|min:1',
             'links.*.title' => 'required|string|max:255',
             'links.*.url' => 'required|url',
@@ -57,30 +56,11 @@ class LinkController extends Controller
 
         $userId = Auth::id();
 
-        // Validasi tambahan: pastikan salah satu diisi
-        if (empty($validated['category_id']) && empty($validated['category_title'])) {
-            return back()->withErrors([
-                'category_title' => 'Pilih kategori dari dropdown atau masukkan kategori baru.',
-            ])->withInput();
-        }
-
-        // Tentukan kategori ID
-        $categoryId = $validated['category_id'] ?? null;
-
-        // Jika tidak pilih dari dropdown, buat kategori baru
-        if (!$categoryId && !empty($validated['category_title'])) {
-            $category = $project->categories()->create([
-                'user_id' => $userId,
-                'name' => $validated['category_title'],
-            ]);
-            $categoryId = $category->id;
-        }
-
-        // Simpan semua link dengan kategori
+        // Menyimpan semua link yang diinputkan tanpa melibatkan kategori baru
         foreach ($validated['links'] as $link) {
             $project->links()->create([
                 'user_id' => $userId,
-                'category_id' => $categoryId,
+                'category_id' => $project->categories->first()->id, 
                 'title' => $link['title'],
                 'original_url' => $link['url'],
             ]);
@@ -88,7 +68,7 @@ class LinkController extends Controller
 
         return redirect()
             ->route('projects.links.index', $project->id)
-            ->with('success', 'Kategori dan link berhasil ditambahkan.');
+            ->with('success', 'Link berhasil ditambahkan.');
     }
 
     public function destroy(Link $link): RedirectResponse

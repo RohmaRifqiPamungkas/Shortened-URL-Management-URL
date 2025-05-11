@@ -38,10 +38,21 @@ class ProjectController extends Controller
     {
         $request->validate([
             'project_name' => 'required|string|max:255',
-            'project_slug' => 'nullable|string|max:255|unique:projects,project_slug',
+            'project_slug' => 'nullable|string|max:255',
         ]);
 
         $slug = $request->project_slug ?? Str::slug($request->project_name);
+
+        // Validasi slug mirip (custom)
+        $allSlugs = Project::pluck('project_slug');
+        foreach ($allSlugs as $existingSlug) {
+            similar_text($slug, $existingSlug, $percent); // atau pakai levenshtein
+            if ($percent >= 85) {
+                return back()->withErrors(['project_slug' => 'Slug terlalu mirip dengan slug yang sudah ada: ' . $existingSlug])->withInput();
+            }
+        }
+
+        // Jamin tetap unik slug-nya
         while (Project::where('project_slug', $slug)->exists()) {
             $slug = Str::slug($request->project_name) . '-' . Str::random(4);
         }

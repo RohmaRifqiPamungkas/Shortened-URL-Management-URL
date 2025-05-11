@@ -31,50 +31,45 @@ class CategoryController extends Controller
     }
 
     /**
+     * Menampilkan form untuk membuat kategori baru
+     */
+    public function create(Request $request, $projectId)
+    {
+        $user = $request->user();
+
+        $project = Project::where('id', $projectId)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        return Inertia::render('Projects/Categories/Create', [
+            'project' => $project,
+        ]);
+    }
+
+    /**
      * Menyimpan kategori baru
      */
     public function store(Request $request, $projectId)
     {
         $user = $request->user();
 
-        // Cek apakah sedang membuat kategori baru saja
-        if ($request->has('name') && $request->filled('name') && !$request->filled('original_url')) {
-            // Validasi kategori baru
-            $validated = $request->validate([
-                'name' => 'required|string|max:255',
-            ]);
-
-            $project = Project::findOrFail($projectId);
-
-            // Simpan kategori baru
-            $category = Category::create([
-                'user_id' => $user->id,
-                'project_id' => $project->id,
-                'name' => $validated['name'],
-            ]);
-
-            return response()->json([
-                'message' => 'Kategori berhasil dibuat',
-                'category' => $category,
-            ]);
-        }
-
-        // Validasi dan simpan link
-        $validated = $request->validate([
-            'original_url' => 'required|url',
-            'category_id' => 'required|exists:categories,id',
+        $request->validate([
+            'name' => 'required|string|max:255',
         ]);
 
-        $link = Link::create([
+        $project = Project::where('id', $projectId)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        $category = Category::create([
             'user_id' => $user->id,
-            'project_id' => $projectId,
-            'category_id' => $validated['category_id'],
-            'original_url' => $validated['original_url'],
+            'project_id' => $project->id,
+            'name' => $request->name,
         ]);
 
         return response()->json([
-            'message' => 'Link berhasil disimpan',
-            'link' => $link,
+            'message' => 'Kategori berhasil dibuat',
+            'category' => $category,
         ]);
     }
 }

@@ -33,13 +33,16 @@ class LinkController extends Controller
         ]);
     }
 
-
     public function create(Request $request, Project $project): Response
     {
         abort_if($project->user_id !== Auth::id(), 403);
 
+        $categoryId = $request->query('category_id');
+
         return Inertia::render('Projects/Links/Create', [
             'project' => $project,
+            'categories' => $project->categories,
+            'selectedCategoryId' => $categoryId,
         ]);
     }
 
@@ -49,6 +52,7 @@ class LinkController extends Controller
 
         // Validasi form untuk link yang akan ditambahkan
         $validated = $request->validate([
+            'category_id' => 'required|exists:categories,id',
             'links' => 'required|array|min:1',
             'links.*.title' => 'required|string|max:255',
             'links.*.url' => 'required|url',
@@ -56,11 +60,11 @@ class LinkController extends Controller
 
         $userId = Auth::id();
 
-        // Menyimpan semua link yang diinputkan tanpa melibatkan kategori baru
         foreach ($validated['links'] as $link) {
             $project->links()->create([
                 'user_id' => $userId,
-                'category_id' => $project->categories->first()->id, 
+                'category_id' => $validated['category_id'],
+                'parent_id' => null,
                 'title' => $link['title'],
                 'original_url' => $link['url'],
             ]);

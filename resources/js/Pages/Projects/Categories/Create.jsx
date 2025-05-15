@@ -36,7 +36,7 @@ export default function Create({ auth, project }) {
             <Head title="Tambah Kategori" />
 
             <div className="py-12">
-                <div className="max-w-3xl mx-auto sm:px-6 lg:px-8">
+                <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 flex justify-between items-center text-gray-900 dark:text-gray-100">
                             <span>Form Tambah Kategori</span>

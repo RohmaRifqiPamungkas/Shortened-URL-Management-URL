@@ -2,9 +2,9 @@ import React, { useState } from 'react';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
 
-export default function Create({ auth, project }) {
+export default function Create({ auth, project, categories, selectedCategoryId }) {
     const { data, setData, post, processing, errors } = useForm({
-        category_id: '', // Tidak lagi dari query string
+        category_id: selectedCategoryId ?? '', // Ambil dari query
         links: [{ title: '', url: '' }],
     });
 
@@ -45,7 +45,7 @@ export default function Create({ auth, project }) {
                         <div className="p-6 flex justify-between items-center text-gray-900 dark:text-gray-100">
                             <span>Tambah Link Baru</span>
                             <Link
-                                href={`/dashboard/projects/${project.id}`}
+                                href={`/dashboard/projects/${project.id}/links`}
                                 className="px-4 py-2 bg-gray-600 text-white rounded hover:bg-gray-700"
                             >
                                 Kembali
@@ -54,6 +54,9 @@ export default function Create({ auth, project }) {
 
                         <div className="p-6 border-t border-gray-200 dark:border-gray-700">
                             <form onSubmit={submit} className="space-y-6">
+                                {/* Hidden category_id */}
+                                <input type="hidden" name="category_id" value={data.category_id} />
+
                                 {/* Repeater Link */}
                                 <div>
                                     <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">

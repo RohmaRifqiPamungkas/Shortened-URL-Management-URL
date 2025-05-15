@@ -61,6 +61,24 @@ class CategoryController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
+        $newName = strtolower(trim($request->name));
+
+        // Ambil semua nama kategori dalam project ini
+        $existingCategories = Category::where('user_id', $user->id)
+            ->where('project_id', $project->id)
+            ->pluck('name');
+
+        foreach ($existingCategories as $existingName) {
+            $distance = levenshtein($newName, strtolower($existingName));
+
+            // Batas kemiripan yang ditoleransi (misalnya <= 2)
+            if ($distance <= 2) {
+                return response()->json([
+                    'error' => "Nama kategori mirip dengan yang sudah ada: '{$existingName}' (selisih $distance karakter)."
+                ], 422);
+            }
+        }
+
         $category = Category::create([
             'user_id' => $user->id,
             'project_id' => $project->id,

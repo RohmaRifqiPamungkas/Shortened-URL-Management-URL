@@ -16,7 +16,9 @@ class ShortenLinkController extends Controller
 
     public function index()
     {
-        $shortends = ShortenedLink::where('user_id', Auth::id())->get();
+        $shortends = ShortenedLink::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
 
         return Inertia::render('Shorten/Index', [
             'shortends' => $shortends,

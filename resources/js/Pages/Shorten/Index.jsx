@@ -22,6 +22,31 @@ export default function Index({ auth }) {
 
     const baseUrl = window.location.origin + "/s/";
 
+    const getCustomFavicon = (url) => {
+        try {
+            const hostname = new URL(url).hostname.replace(/^www\./, "");
+
+            const customIcons = {
+                "github.com": "/icons/github.svg",
+                "facebook.com": "/icons/facebook.svg",
+                "twitter.com": "/icons/twitter.svg",
+                "linkedin.com": "/icons/linkedin.svg",
+                "youtube.com": "/icons/youtube.svg",
+                "figma.com": "/icons/figma.svg",
+            };
+
+            if (customIcons[hostname]) {
+                return customIcons[hostname];
+            }
+
+            // Fallback ke favicon dari Google
+            return `https://www.google.com/s2/favicons?domain=${hostname}`;
+        } catch (error) {
+            // Fallback icon default lokal (opsional)
+            return "/icons/default.svg";
+        }
+    };    
+
     return (
         <AuthenticatedLayout
             user={auth.user}
@@ -87,9 +112,21 @@ export default function Index({ auth }) {
                                                             {fullShortUrl}
                                                         </a>
                                                     </td>
-                                                    <td className="px-4 py-2 truncate max-w-xs">
-                                                        {link.original_url}
+                                                    <td className="px-4 py-2 max-w-xs">
+                                                        <div className="flex items-center gap-2 overflow-hidden">
+                                                            <img
+                                                                src={getCustomFavicon(link.original_url)}
+                                                                alt="favicon"
+                                                                className="w-5 h-5 shrink-0"
+                                                                onError={(e) => {
+                                                                    const hostname = new URL(link.original_url).hostname;
+                                                                    e.currentTarget.src = `https://www.google.com/s2/favicons?domain=${hostname}`;
+                                                                }}
+                                                            />
+                                                            <span className="truncate">{link.original_url}</span>
+                                                        </div>
                                                     </td>
+
                                                     <td className="px-4 py-2 flex gap-2">
                                                         <Link
                                                             href={`/dashboard/shorten/${link.id}/edit`}

@@ -3,7 +3,7 @@ import { Head, usePage, Link } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function ProjectsDashboard({ auth }) {
-    const { projects = [], flash } = usePage().props;
+    const { projects = { data: [], links: [] }, flash } = usePage().props;
 
     return (
         <AuthenticatedLayout
@@ -24,7 +24,7 @@ export default function ProjectsDashboard({ auth }) {
                                 Total Projects:{" "}
                                 {projects.length === 0
                                     ? "No projects yet"
-                                    : projects.length}
+                                    : projects.data.length}
                             </span>
 
                             <Link
@@ -52,8 +52,8 @@ export default function ProjectsDashboard({ auth }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {projects.length > 0 ? (
-                                        projects.map((project, index) => (
+                                    {projects.data.length > 0 ? (
+                                        projects.data.map((project, index) => (
                                             <tr
                                                 key={project.id}
                                                 onClick={() =>
@@ -123,6 +123,20 @@ export default function ProjectsDashboard({ auth }) {
                                     )}
                                 </tbody>
                             </table>
+                            {/* PAGINATION */}
+                            <div className="px-6 py-4 flex justify-center gap-2">
+                                {projects.links.map((link, key) => (
+                                    <Link
+                                        key={key}
+                                        href={link.url ?? "#"}
+                                        dangerouslySetInnerHTML={{ __html: link.label }}
+                                        className={`px-3 py-1 rounded ${link.active
+                                            ? "bg-blue-600 text-white"
+                                            : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                            } ${!link.url && "pointer-events-none opacity-50"}`}
+                                    />
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

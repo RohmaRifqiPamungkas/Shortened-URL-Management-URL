@@ -1,20 +1,19 @@
 import React from 'react';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 
-export default function Index({ auth, project, links, categories }) {
+export default function Index({ auth, project, paginatedLinks, categories }) {
     // Kelompokkan links berdasarkan kategori
     const groupedLinks = categories.reduce((acc, category) => {
         acc[category.name] = {
             category_id: category.id,
-            links: links.filter(link => link.category?.id === category.id)
+            links: paginatedLinks.data.filter(link => link.category?.id === category.id)
         };
         return acc;
     }, {});
     
-
     // Tambahkan kategori 'Tanpa Kategori' (link yang tidak punya kategori)
-    const uncategorizedLinks = links.filter(link => !link.category);
+    const uncategorizedLinks = paginatedLinks.data.filter(link => !link.category);
     if (uncategorizedLinks.length > 0) {
         groupedLinks['Tanpa Kategori'] = {
             category_id: null,
@@ -37,7 +36,13 @@ export default function Index({ auth, project, links, categories }) {
                 <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                     <div className="bg-white dark:bg-gray-800 overflow-hidden shadow-sm sm:rounded-lg">
                         <div className="p-6 flex justify-between items-center text-gray-900 dark:text-gray-100">
-                            <span>Daftar Kategori</span>
+                            <span>
+                                Total Kategori:{" "}
+                                {categories.length === 0
+                                    ? "Belum ada kategori"
+                                    : categories.length}
+                            </span>
+
                             <div className="space-x-2">
                                 <Link
                                     href="/dashboard/projects"
@@ -95,6 +100,21 @@ export default function Index({ auth, project, links, categories }) {
                                     ))}
                                 </ul>
                             )}
+                        </div>
+
+                        {/* PAGINATION */}
+                        <div className="px-6 py-4 flex justify-center gap-2">
+                            {paginatedLinks.links.map((link, key) => (
+                                <Link
+                                    key={key}
+                                    href={link.url ?? "#"}
+                                    dangerouslySetInnerHTML={{ __html: link.label }}
+                                    className={`px-3 py-1 rounded ${link.active
+                                        ? "bg-blue-600 text-white"
+                                        : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                                        } ${!link.url && "pointer-events-none opacity-50"}`}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>

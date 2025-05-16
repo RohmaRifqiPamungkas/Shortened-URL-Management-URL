@@ -19,7 +19,8 @@ class LinkController extends Controller
 
         $links = Link::with('category')
             ->where('project_id', $project_id)
-            ->get();
+            ->latest()
+            ->paginate(10);
 
         $categories = Category::where('project_id', $project_id)->get(); 
 
@@ -28,7 +29,7 @@ class LinkController extends Controller
                 'user' => Auth::user()
             ],
             'project' => $project,
-            'links' => $links,
+            'paginatedLinks' => $links,
             'categories' => $categories, 
         ]);
     }

@@ -16,7 +16,9 @@ class ProjectController extends Controller
      */
     public function index(): Response
     {
-        $projects = Project::where('user_id', Auth::id())->get();
+        $projects = Project::where('user_id', Auth::id())
+            ->latest()
+            ->paginate(10);
 
         return Inertia::render('Projects/Index', [
             'projects' => $projects,

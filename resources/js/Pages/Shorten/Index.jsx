@@ -3,7 +3,7 @@ import { Head, usePage, Link, useForm } from "@inertiajs/react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 
 export default function Index({ auth }) {
-    const { shortends = [], flash } = usePage().props;
+    const { shortends = { data: [], links: [] }, flash } = usePage().props;
     const [copiedId, setCopiedId] = useState(null);
     const { delete: destroy } = useForm();
 

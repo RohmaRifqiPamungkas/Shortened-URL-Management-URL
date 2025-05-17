@@ -13,14 +13,17 @@ use Illuminate\Http\RedirectResponse;
 
 class LinkController extends Controller
 {
-    public function index($project_id)
+    public function index($project_id, Request $request)
     {
         $project = Project::findOrFail($project_id);
+
+        $perPage = $request->query('perPage', 10);
 
         $links = Link::with('category')
             ->where('project_id', $project_id)
             ->latest()
-            ->paginate(10);
+            ->paginate($perPage)
+            ->appends(['perPage' => $perPage]);
 
         $categories = Category::where('project_id', $project_id)->get(); 
 
